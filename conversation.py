@@ -105,6 +105,8 @@ class Conversation:
                     return number_response + str(1) + " note."
                 return number_response + str(self.size) + " notes."
             if word in self.index_words:
+                if self.size - 1 < int(word[0]) - 1:
+                    return "Sorry, you don't have that many notes."
                 return index_response + self.notes[int(word[0]) - 1]
 
 
