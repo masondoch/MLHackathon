@@ -20,16 +20,20 @@ class Conversation:
         have previously trained.
         '''
         self.size = 0
-        start_words = ["start", "take", "write"]
+        start_words = ["start", "take", "write", "make"]
         last_words = ["last", "previous", "just"]
         delete_words = ["delete"]
         number_words = ["number", "total", "many"]
         ordinal = lambda n: "%d%s" % (n,"tsnrhtdd"[(n/10%10!=1)*(n%10<4)*n%10::4])
         index_array = [ordinal(n) for n in range(1, 20)]
         syn_start_words = []
+        syn_start_words.extend(start_words)
         syn_last_words = []
+        syn_last_words.extend(last_words)
         syn_delete_words = []
+        syn_delete_words.extend(delete_words)
         syn_number_words= []
+        syn_number_words.extend(number_words)
         syn_index_words = []
         for i in start_words:
             syns = wn.synsets(i)
