@@ -4,12 +4,12 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem.wordnet import WordNetLemmatizer
-from nltk.corpus import wordnet 
-# first command: start, take, write 
-# second command: storing a string 
+from nltk.corpus import wordnet as wn
+# first command: start, take, write
+# second command: storing a string
 # retrieve the last note: (going through the array where we stored the notes) last, was (??), previous, just (wrote)
 # delete the last note: delete
-# total number of notes: number, total, many, 
+# total number of notes: number, total, many,
 
 class Conversation:
 
@@ -38,5 +38,11 @@ class Conversation:
         filtered_sentence = [w for w in filtered_word_array if not word in stop_words]
 
         lem_sentence = [wnl.lemmatize(i) for i in filtered_sentence]
+
+        start_words = ["start", "take", "write"]
+        last_words = ["last", "previous", "just"]
+        delete_words = ["delete"]
+        number_words = ["number", "total", "many"]
+        
 
         return sentence
