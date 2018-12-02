@@ -20,6 +20,35 @@ class Conversation:
         have previously trained.
         '''
         self.size = 0
+        start_words = ["start", "take", "write"]
+        last_words = ["last", "previous", "just"]
+        delete_words = ["delete"]
+        number_words = ["number", "total", "many"]
+        syn_start_words = []
+        syn_last_words = []
+        syn_delete_words = []
+        syn_number_words= []
+        for i in start_words: 
+            syns = wn.synsets(i)
+            for j in syns: 
+                syn_start_words.append(syns[j].lemmas()[0].name())
+        for i in last_words: 
+            syns = wn.synsets(i)
+            for j in syns: 
+                syn_last_words.append(syns[j].lemmas()[0].name())
+        for i in delete_words: 
+            syns = wn.synsets(i)
+            for j in syns: 
+                syn_delete_words.append(syns[j].lemmas()[0].name())
+        for i in number_words: 
+            syns = wn.synsets(i)
+            for j in syns: 
+                syn_number_words.append(syns[j].lemmas()[0].name())
+        self.start_words = syn_start_words
+        self.last_words = syn_last_words
+        self.delete_words = syn_delete_words
+        self.number_words = syn_number_words
+
         pass
 
     def respond(self, sentence):
@@ -39,10 +68,7 @@ class Conversation:
 
         lem_sentence = [wnl.lemmatize(i) for i in filtered_sentence]
 
-        start_words = ["start", "take", "write"]
-        last_words = ["last", "previous", "just"]
-        delete_words = ["delete"]
-        number_words = ["number", "total", "many"]
-        
+
+
 
         return sentence
