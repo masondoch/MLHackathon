@@ -58,6 +58,9 @@ class Conversation:
         self.index_words = index_array
         self.notes = []
         self.in_progress = False
+        self.delete = False
+        self.last = False
+        self.track ={}
         pass
 
     def respond(self, sentence):
@@ -67,10 +70,6 @@ class Conversation:
         some input from the user, and return the output
         from the chatbot.
         '''
-        if self.in_progress:
-            self.notes.append(sentence)
-            self.in_progress = False
-            return "Note saved."
         wnl = WordNetLemmatizer()
         punct_array = [',', '.', '?', '!', '-', ';', ':']
         word_array = nltk.word_tokenize(sentence)
@@ -81,33 +80,66 @@ class Conversation:
 
         lem_sentence = [wnl.lemmatize(i) for i in filtered_sentence]
 
+        if self.in_progress:
+            self.notes.append(sentence)
+            self.in_progress = False
+            for i in range(len(lem_sentence)): 
+                self.track[lem_sentence[i]]= self.size
+            print(self.track)
+            return "Note saved."
+        
+
         start_response = "OK, what would you like me to say?"
         last_response = "Your last note was: "
         delete_response = "OK, I deleted your previous note."
         number_response = "You have "
         index_response = "Here is that note: "
-
+        default_response = "Sorry, I didn't understand that."
         for word in lem_sentence:
             if word in self.start_words:
                 self.size += 1
                 self.in_progress = True
-                return start_response;
+                return start_response
+
             if word in self.last_words:
                 if self.size == 0:
                     return "You don't have any notes currently."
-                return last_response + self.notes[self.size - 1]
+                self.last = True
+                if not self.delete: 
+                    self.last = False
+                    return last_response + self.notes[self.size - 1]
+                else: 
+                    self.size -= 1
+                    self.delete = False
+                    self.last = False
+                    return delete_response
             if word in self.delete_words:
-                self.notes.pop()
-                self.size -= 1
-                return delete_response
+                #self.notes.pop()
+                self.delete = True
+                #self.size -= 1
+                #return delete_response
             if word in self.number_words:
                 if self.size == 1:
                     return number_response + str(1) + " note."
                 return number_response + str(self.size) + " notes."
             if word in self.index_words:
-                if self.size - 1 < int(word[0]) - 1:
-                    return "Sorry, you don't have that many notes."
-                return index_response + self.notes[int(word[0]) - 1]
-
-
-        return "Sorry, I didn't understand that."
+                if not self.delete: 
+                    if self.size - 1 < int(word[0]) - 1:
+                        return "Sorry, you don't have that many notes."
+                    return index_response + self.notes[int(word[0]) - 1]
+                else: 
+                    if self.last: 
+                        self.notes.pop()
+                        self.last = False
+                        self.delete = False
+                        self.size-=1
+                        return delete_response
+                    else : 
+                        self.notes.pop(int(word[0]) - 1)
+                        self.delete = False
+                        self.size-=1
+                        return "OK I deleted your " + str(word) + " note."
+            if word in self.track.keys(): 
+                value = self.track[word] - 1
+                return "Your notes was: " + self.notes[value]    
+        return default_response
