@@ -30,25 +30,26 @@ class Conversation:
         syn_number_words= []
         for i in start_words:
             syns = wn.synsets(i)
-            for j in syns:
+            for j in range(len(syns)):
                 syn_start_words.append(syns[j].lemmas()[0].name())
         for i in last_words:
             syns = wn.synsets(i)
-            for j in syns:
+            for j in range(len(syns)):
                 syn_last_words.append(syns[j].lemmas()[0].name())
         for i in delete_words:
             syns = wn.synsets(i)
-            for j in syns:
+            for j in range(len(syns)):
                 syn_delete_words.append(syns[j].lemmas()[0].name())
         for i in number_words:
             syns = wn.synsets(i)
-            for j in syns:
+            for j in range(len(syns)):
                 syn_number_words.append(syns[j].lemmas()[0].name())
         self.start_words = syn_start_words
         self.last_words = syn_last_words
         self.delete_words = syn_delete_words
         self.number_words = syn_number_words
-
+        self.notes = []
+        self.in_progress = False
         pass
 
     def respond(self, sentence):
@@ -58,30 +59,40 @@ class Conversation:
         some input from the user, and return the output
         from the chatbot.
         '''
+        if self.in_progress: 
+            self.notes.append(sentence)
+            self.in_progress = False 
+            return "Note saved."
         wnl = WordNetLemmatizer()
         punct_array = [',', '.', '?', '!', '-', ';', ':']
         word_array = nltk.word_tokenize(sentence)
         filtered_word_array = [word for word in word_array if word not in punct_array]
 
         stop_words = set(stopwords.words('english'))
-        filtered_sentence = [w for w in filtered_word_array if not word in stop_words]
+        filtered_sentence = [w for w in filtered_word_array if not w in stop_words]
 
         lem_sentence = [wnl.lemmatize(i) for i in filtered_sentence]
 
         start_response = "OK, what would you like me to say?"
         last_response = "Your last note was: "
         delete_response = "OK, I deleted your previous note."
-        number_response = "You have x notes."
+        number_response = "You have " 
 
         for word in lem_sentence:
             if word in self.start_words:
+                self.size += 1
+                self.in_progress = True
                 return start_response;
             if word in self.last_words:
-                return last_response
+                if self.size == 0: 
+                    return "You don't have any notes currently."
+                return last_response + self.notes[self.size - 1]
             if word in self.delete_words:
+                self.notes.pop()
+                self.size -= 1
                 return delete_response
             if word in self.number_words:
-                return number_response
+                return number_response + str(self.size) + " notes."
 
 
         return "Sorry, I didn't understand that."
