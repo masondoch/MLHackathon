@@ -24,10 +24,13 @@ class Conversation:
         last_words = ["last", "previous", "just"]
         delete_words = ["delete"]
         number_words = ["number", "total", "many"]
+        ordinal = lambda n: "%d%s" % (n,"tsnrhtdd"[(n/10%10!=1)*(n%10<4)*n%10::4])
+        index_array = [ordinal(n) for n in range(1, 20)]
         syn_start_words = []
         syn_last_words = []
         syn_delete_words = []
         syn_number_words= []
+        syn_index_words = []
         for i in start_words:
             syns = wn.synsets(i)
             for j in range(len(syns)):
@@ -48,6 +51,7 @@ class Conversation:
         self.last_words = syn_last_words
         self.delete_words = syn_delete_words
         self.number_words = syn_number_words
+        self.index_words = index_array
         self.notes = []
         self.in_progress = False
         pass
@@ -59,9 +63,9 @@ class Conversation:
         some input from the user, and return the output
         from the chatbot.
         '''
-        if self.in_progress: 
+        if self.in_progress:
             self.notes.append(sentence)
-            self.in_progress = False 
+            self.in_progress = False
             return "Note saved."
         wnl = WordNetLemmatizer()
         punct_array = [',', '.', '?', '!', '-', ';', ':']
@@ -76,7 +80,8 @@ class Conversation:
         start_response = "OK, what would you like me to say?"
         last_response = "Your last note was: "
         delete_response = "OK, I deleted your previous note."
-        number_response = "You have " 
+        number_response = "You have "
+        index_response = "Here is that note: "
 
         for word in lem_sentence:
             if word in self.start_words:
@@ -84,7 +89,7 @@ class Conversation:
                 self.in_progress = True
                 return start_response;
             if word in self.last_words:
-                if self.size == 0: 
+                if self.size == 0:
                     return "You don't have any notes currently."
                 return last_response + self.notes[self.size - 1]
             if word in self.delete_words:
@@ -92,7 +97,11 @@ class Conversation:
                 self.size -= 1
                 return delete_response
             if word in self.number_words:
+                if self.size == 1:
+                    return number_response + str(1) + " note."
                 return number_response + str(self.size) + " notes."
+            if word in self.index_words:
+                return index_response + self.notes[int(word[0]) - 1]
 
 
         return "Sorry, I didn't understand that."
